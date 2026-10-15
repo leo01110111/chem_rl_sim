@@ -55,6 +55,14 @@ uses the left door and the right arm the right door; both reach the pan without
 contact. Through the top door alone, the best of 12 IK starts still penetrates
 the frame by 15–42 mm. The person in the video also went in through the side.
 
+![Each arm reaching the pan through its side door (IK, kinematic playback)](docs/ik_door_reach.gif)
+
+`tools/ik_door_reach.py` reproduces the side-door result. It holds the fingers
+horizontal and pointing into the chamber, with the thumb under the palm, and
+reports 0 contacts along the whole path for both arms. The point 10 cm along the
+fingers has to stay at least 12 cm above the pan. Lower than that, the thumb hits
+the pan or balance, and the wrist hits the vials and the boxes beside the balance.
+
 ## Tools
 
 | script | what it does |
@@ -66,6 +74,7 @@ the frame by 15–42 mm. The person in the video also went in through the side.
 | `tools/make_vial.py` | generate the parametric vial and cap assets |
 | `tools/preview_asset.py N` | render the visual mesh beside its collision hulls, on a 1 cm checker |
 | `tools/render_overview.py` | render the README image of the whole env → `docs/env.png` |
+| `tools/ik_door_reach.py` | IK each arm through its side door to the pan, print errors and contacts → `docs/ik_door_reach.gif` |
 | `tools/render_scene.py` | render video frame, sim from the phone's viewpoint, and sim from `top1` → `work/scene_*.png` |
 
 Tests: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest -q`. The variable stops the
