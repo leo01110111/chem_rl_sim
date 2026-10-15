@@ -1,6 +1,6 @@
 ---
 name: chem-render-share
-description: Render images of the chem_rl_sim environment and publish changes to the private GitHub repo. Use when the user asks for "an image of the env", a screenshot or render of the scene, to update docs/env.png, or to push, share, or invite someone to leo01110111/chem_rl_sim.
+description: Render images of the chem_rl_sim environment and publish changes to the public GitHub repo. Use when the user asks for "an image of the env", a screenshot or render of the scene, to update docs/env.png, or to push, share, or invite someone to leo01110111/chem_rl_sim.
 ---
 
 # Rendering and sharing chem_rl_sim
@@ -24,7 +24,7 @@ uv run python tools/render_scene.py        # -> work/scene_{video,task}.png, com
 
 ## GitHub
 
-- Remote: https://github.com/leo01110111/chem_rl_sim, PRIVATE. Submodule
+- Remote: https://github.com/leo01110111/chem_rl_sim, PUBLIC (made public 2026-10-15; everything pushed is world-readable). Submodule
   `third_party/urgantry_sim` points at the public leo01110111/urgantry_sim, so
   collaborators can clone with `--recurse-submodules`.
 - Collaborator: Servo97 (Sarvesh Patil) has write access (invited 2026-10-15).
