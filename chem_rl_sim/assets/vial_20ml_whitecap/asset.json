@@ -1,0 +1,60 @@
+{
+  "name": "vial_20ml_whitecap",
+  "source": "tools/make_vial.py (parametric)",
+  "scale": 1.0,
+  "extents_m": [
+    0.028,
+    0.028,
+    0.0615
+  ],
+  "mass": 0.024,
+  "visuals": [
+    {
+      "mesh": "visual_0.obj",
+      "rgba": [
+        0.86,
+        0.93,
+        0.96,
+        0.28
+      ],
+      "texture": null,
+      "part": "part0"
+    },
+    {
+      "mesh": "visual_1.obj",
+      "rgba": [
+        0.95,
+        0.94,
+        0.9,
+        1.0
+      ],
+      "texture": null,
+      "part": "part1"
+    }
+  ],
+  "collisions": [
+    "collision_0.obj",
+    "collision_1.obj",
+    "collision_2.obj",
+    "collision_3.obj",
+    "collision_4.obj",
+    "collision_5.obj",
+    "collision_6.obj",
+    "collision_7.obj",
+    "collision_8.obj",
+    "collision_9.obj",
+    "collision_10.obj",
+    "collision_11.obj",
+    "collision_12.obj",
+    "collision_13.obj"
+  ],
+  "material": {
+    "specular": 0.8,
+    "shininess": 0.9,
+    "reflectance": 0.1
+  },
+  "provenance": {
+    "license": "generated",
+    "note": "20 mL scintillation vial, 28 mm OD, 24-400 finish, white cap"
+  }
+}

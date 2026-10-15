@@ -1,0 +1,9 @@
+*.mov
+*.mp4
+!docs/**/*.mp4
+.venv/
+__pycache__/
+*.egg-info/
+MUJOCO_LOG.TXT
+work/
+assets/raw/*.glb

@@ -1,0 +1,36 @@
+{
+  "name": "cap_24_400_white",
+  "source": "tools/make_vial.py (parametric)",
+  "scale": 1.0,
+  "extents_m": [
+    0.0265,
+    0.0265,
+    0.0125
+  ],
+  "mass": 0.004,
+  "visuals": [
+    {
+      "mesh": "visual_0.obj",
+      "rgba": [
+        0.95,
+        0.94,
+        0.9,
+        1.0
+      ],
+      "texture": null,
+      "part": "part0"
+    }
+  ],
+  "collisions": [
+    "collision_0.obj"
+  ],
+  "material": {
+    "specular": 0.8,
+    "shininess": 0.9,
+    "reflectance": 0.1
+  },
+  "provenance": {
+    "license": "generated",
+    "note": "24-400 PP screw cap"
+  }
+}

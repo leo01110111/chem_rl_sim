@@ -1,0 +1,52 @@
+{
+  "name": "pasteur_dropper",
+  "source": "assets/raw/7e17299c2cdd42ea9686e48a1089790c.glb",
+  "parts": [
+    "Sphere_0|Sphere_0",
+    "Cylinder_0|Cylinder_0"
+  ],
+  "up": "y",
+  "scale": 0.0279628675497902,
+  "extents_m": [
+    0.016,
+    0.016,
+    0.17
+  ],
+  "mass": 0.01,
+  "visuals": [
+    {
+      "mesh": "visual_0.obj",
+      "rgba": [
+        0.8,
+        0.06,
+        0.08,
+        1.0
+      ],
+      "texture": null,
+      "part": "Sphere_0|Sphere_0"
+    },
+    {
+      "mesh": "visual_1.obj",
+      "rgba": [
+        0.86,
+        0.93,
+        0.96,
+        0.35
+      ],
+      "texture": null,
+      "part": "Cylinder_0|Cylinder_0"
+    }
+  ],
+  "collisions": [
+    "collision_0.obj",
+    "collision_1.obj"
+  ],
+  "provenance": {
+    "uid": "7e17299c2cdd42ea9686e48a1089790c",
+    "name": "Pipet/Pipette",
+    "license": "by",
+    "author": "denis98",
+    "url": "https://sketchfab.com/3d-models/7e17299c2cdd42ea9686e48a1089790c",
+    "face_count": 29824
+  }
+}
