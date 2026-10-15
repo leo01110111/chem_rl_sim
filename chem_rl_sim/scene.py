@@ -74,13 +74,15 @@ LAYOUTS = {
     },
     # Start of the weighing step (2:50): pan empty, every vial upright on the bench
     # within both arms' reach so a policy can pick vial a and set it on the pan.
+    # Props sit 0.10 m further +y (away from the column) than first placed; the
+    # dropper stays at y=0.17 because it lies ~15 cm along +y and would fall off.
     "task": {
-        "vial_a": ("vial_20ml_open", (-0.12, -0.04, _BENCH), Q_UP),
-        "vial_b": ("vial_20ml_open", (-0.20, 0.04, _BENCH), Q_UP),
-        "vial_c": ("vial_20ml_whitecap", (-0.13, 0.10, _BENCH), Q_UP),
-        "vial_red": ("vial_20ml_redcap", (-0.27, 0.12, _BENCH), Q_UP),
-        "cap_1": ("cap_24_400_white", (-0.31, -0.03, _BENCH), Q_UP),
-        "cap_2": ("cap_24_400_white", (-0.33, 0.05, _BENCH), Q_UP),
+        "vial_a": ("vial_20ml_open", (-0.12, 0.06, _BENCH), Q_UP),
+        "vial_b": ("vial_20ml_open", (-0.20, 0.14, _BENCH), Q_UP),
+        "vial_c": ("vial_20ml_whitecap", (-0.13, 0.20, _BENCH), Q_UP),
+        "vial_red": ("vial_20ml_redcap", (-0.27, 0.22, _BENCH), Q_UP),
+        "cap_1": ("cap_24_400_white", (-0.31, 0.07, _BENCH), Q_UP),
+        "cap_2": ("cap_24_400_white", (-0.33, 0.15, _BENCH), Q_UP),
         "dropper": ("pasteur_dropper", (-0.04, 0.17, _BENCH + DROPPER_TIP_R), Q_LIE_Y),
     },
 }
