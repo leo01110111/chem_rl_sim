@@ -33,7 +33,7 @@ dev = [
 include = ["chem_rl_sim*"]
 
 [tool.setuptools.package-data]
-chem_rl_sim = ["assets/**/*"]
+chem_rl_sim = ["assets/**/*", "robotiq_2f85/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

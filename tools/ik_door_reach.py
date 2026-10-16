@@ -110,7 +110,7 @@ def contacts(d, arm_geom):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--hand", default="wuji")
+    p.add_argument("--hand", choices=("wuji", "sharpa"), default="wuji")
     p.add_argument("--out-mp4", default=str(ROOT / "work" / "ik_door_reach.mp4"))
     p.add_argument("--out-gif", default=str(ROOT / "docs" / "ik_door_reach.gif"))
     p.add_argument("--fps", type=int, default=20)

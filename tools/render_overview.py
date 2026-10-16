@@ -1,5 +1,5 @@
 """CONTRACT
-Input: --layout task|video (default task), --hand wuji|sharpa (default wuji),
+Input: --layout task|video (default task), --hand robotiq|wuji|sharpa (default robotiq),
   --settle SECONDS of physics before the render (default 0.5), --out PATH.
 Output: one PNG (default docs/env.png), 1600x800 RGB, two 800x800 panels: a wide
   free-camera shot of the whole gantry (both UR7e arms, bench, balance) and a
@@ -20,6 +20,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from chem_rl_sim.robot import DEFAULT_EFFECTOR, EFFECTORS  # noqa: E402
 from chem_rl_sim.scene import LAYOUTS, build_scene  # noqa: E402
 
 # (lookat, distance, azimuth deg, elevation deg)
@@ -32,7 +33,7 @@ VIEWS = [
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--layout", choices=list(LAYOUTS), default="task")
-    p.add_argument("--hand", default="wuji")
+    p.add_argument("--hand", choices=EFFECTORS, default=DEFAULT_EFFECTOR)
     p.add_argument("--settle", type=float, default=0.5)
     p.add_argument("--out", default=str(ROOT / "docs" / "env.png"))
     a = p.parse_args()

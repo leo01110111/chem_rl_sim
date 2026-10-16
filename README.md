@@ -4,8 +4,9 @@ A MuJoCo version of the vial-weighing bench filmed in
 `chem_lab_vial_weighing_trial1_2026-10-08.mov` (2:50–4:10). It contains a Mettler
 Toledo ME-class analytical balance with a sliding glass draft shield and a pan
 that reports weight, 20 mL glass vials and caps, a Pasteur dropper, and the
-nearby clutter. Everything sits on the MaxLab gantry: two UR7e arms with Wuji or
-Sharpa hands. A Gymnasium environment for the weighing task is included.
+nearby clutter. Everything sits on the MaxLab gantry: two UR7e arms with Robotiq
+2F-85 grippers bolted to the flanges, or Wuji or Sharpa hands instead. A Gymnasium
+environment for the weighing task is included.
 
 ![The environment: full gantry (left) and the bench close up (right)](docs/env.png)
 
@@ -34,13 +35,16 @@ import gymnasium as gym
 import chem_rl_sim  # registers ChemVialWeighing-v0
 
 env = gym.make("ChemVialWeighing-v0", normalized_actions=True)  # same interface as SimGantryUR7e-v0
-obs, info = env.reset(seed=0)        # obs: {'state': (52,), 'image': (224,224,3)}
+obs, info = env.reset(seed=0)        # obs: {'state': (14,), 'image': (224,224,3)}
 obs, r, term, trunc, info = env.step(env.action_space.sample())
 info["balance_display"]              # '0.0000 g'
 ```
 
 Useful keyword arguments:
-- `hand="sharpa"` switches to Sharpa Wave hands.
+- `hand="wuji"` or `hand="sharpa"` swaps the Robotiq grippers (default,
+  `hand="robotiq"`) for 5-finger hands. Each hand sits on a 63 mm adapter cylinder,
+  as in urgantry_sim. The action is 14-D with grippers (6 arm joints + 1 gripper
+  per arm, gripper 0 = open .. 255 = closed), 52-D with Wuji and 56-D with Sharpa.
 - `layout="video"` reproduces the frame at 3:57, with the vial already on the pan.
 - `state_mode="proprio+task"` adds the balance reading and the three door
   positions to `state`.
@@ -50,7 +54,8 @@ Useful keyword arguments:
 the vial resting upright on the pan, all three doors closed, and the reading
 within 1 g of the vial's 20 g.
 
-**Reachability:** IK says the vial has to go in through a side door. The left arm
+**Reachability** (checked with the Wuji hands, not yet with the grippers): IK
+says the vial has to go in through a side door. The left arm
 uses the left door and the right arm the right door; both reach the pan without
 contact. Through the top door alone, the best of 12 IK starts still penetrates
 the frame by 15–42 mm. The person in the video also went in through the side.
@@ -64,6 +69,7 @@ fingers has to stay at least 12 cm above the pan. Lower than that, the thumb hit
 the pan or balance, and the wrist hits the vials and the boxes beside the balance.
 
 ## Tools
+
 
 | script | what it does |
 |---|---|
@@ -81,4 +87,6 @@ Tests: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest -q`. The variable stops t
 ROS Jazzy pytest plugins on `PYTHONPATH` from loading.
 
 Asset licenses: see `chem_rl_sim/assets/README.md`. The dropper mesh is CC-BY
-(denis98).
+(denis98). The Robotiq 2F-85 is mujoco_menagerie's `robotiq_2f85` (04674c8),
+copied verbatim into `chem_rl_sim/robotiq_2f85/` (BSD-2-Clause, see its LICENSE)
+and mounted by `chem_rl_sim/robot.py`.

@@ -6,9 +6,10 @@ Importing this package registers the Gymnasium id "ChemVialWeighing-v0"
     import chem_rl_sim  # noqa: F401
     env = gym.make("ChemVialWeighing-v0", normalized_actions=True)
 
-The robot (gantry UR7e + Wuji/Sharpa hands) comes from the urgantry_sim git
-submodule at third_party/urgantry_sim; `git submodule update --remote` pulls the
-latest MaxLab robot model. No max_episode_steps here: the env truncates itself,
+The robot (gantry UR7e) comes from the urgantry_sim git submodule at
+third_party/urgantry_sim, fitted with Robotiq 2F-85 grippers by default
+(chem_rl_sim/robot.py) or its own Wuji/Sharpa hands with hand="wuji"|"sharpa".
+`git submodule update --remote` pulls the latest MaxLab robot model. No max_episode_steps here: the env truncates itself,
 same as urgantry_sim's SimGantryUR7e-v0.
 """
 import gymnasium as gym

@@ -1,6 +1,6 @@
 """CONTRACT
 Input: --layout video|task (default both), --settle SECONDS of physics before the
-  render (default 1.0), --hand wuji|sharpa.
+  render (default 1.0), --hand robotiq|wuji|sharpa (default robotiq).
 Output: work/scene_<layout>.png, three panels, 720 px tall: the video frame at
   3:57 (work/frames/f_068.jpg, if present), the sim from a free camera placed by
   eye near the phone viewpoint (operator side = -y, 60 deg down, swung 30 deg to
@@ -27,6 +27,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from chem_rl_sim.balance import pan_force_z, pan_reading_g  # noqa: E402
+from chem_rl_sim.robot import DEFAULT_EFFECTOR, EFFECTORS  # noqa: E402
 from chem_rl_sim.scene import LAYOUTS, build_scene  # noqa: E402
 
 
@@ -41,7 +42,7 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--layout", choices=list(LAYOUTS), nargs="*", default=list(LAYOUTS))
     p.add_argument("--settle", type=float, default=1.0)
-    p.add_argument("--hand", default="wuji")
+    p.add_argument("--hand", choices=EFFECTORS, default=DEFAULT_EFFECTOR)
     a = p.parse_args()
     tare = empty_pan_force(a.hand)
     for layout in a.layout:

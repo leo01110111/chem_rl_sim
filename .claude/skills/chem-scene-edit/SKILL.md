@@ -14,7 +14,10 @@ holds what is specific to this repo.
 export MUJOCO_GL=egl                                   # without it pytest segfaults at GL init
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest -q      # ROS Jazzy plugins on PYTHONPATH break pytest otherwise
 ```
-7 tests, ~2 s. The "Attach conflict ... ur5e" warnings are normal.
+11 tests, ~2 s. The "Attach conflict ... ur5e" and "parent has ... keeping parent value" warnings are normal.
+
+End effector: `hand="robotiq"` (default, Robotiq 2F-85 bolted to the flange, built in
+`chem_rl_sim/robot.py`) or `"wuji"`/`"sharpa"` (urgantry_sim hands on the adapter cylinder).
 
 ## Frame and bench limits (verified 2026-10-15)
 

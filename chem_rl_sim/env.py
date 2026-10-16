@@ -1,13 +1,19 @@
 """CONTRACT
 Gymnasium env for the vial-weighing bench (video chem_lab_vial_weighing_trial1,
-2:50-4:10) on the gantry UR7e + 5-finger-hand robot from the urgantry_sim submodule.
-Interface deliberately identical to urgantry_sim.env.SimGantryUR7eEnv (MaxLab), so
-OGPO (in-process) and OpenPi (websocket client via get_openpi_observation) can use
-it unchanged:
-  Action  (nu,) actuator targets in actuator order: left arm 6, left hand H,
-          right arm 6, right hand H (H = 20 wuji / 22 sharpa; nu = 52 / 56).
-          Radians. normalized_actions=True -> Box(-1, 1) mapped onto ctrlrange.
-  Obs     {'state': (nu,) float32 actuated joint positions (rad),
+2:50-4:10) on the gantry UR7e robot from the urgantry_sim submodule, with Robotiq
+2F-85 grippers (default, hand="robotiq") or 5-finger hands (hand="wuji"|"sharpa").
+Interface deliberately the same as urgantry_sim.env.SimGantryUR7eEnv (MaxLab) --
+same methods, obs keys and action layout; with hand="wuji" the shapes match it
+exactly (52) -- so OGPO (in-process) and OpenPi (websocket client via
+get_openpi_observation) can use it unchanged:
+  Action  (nu,) actuator targets in actuator order: left arm 6, left effector H,
+          right arm 6, right effector H (H = 1 robotiq / 20 wuji / 22 sharpa;
+          nu = 14 / 52 / 56). Arm and hand targets in radians; the Robotiq target
+          is 0 = open .. 255 = closed. normalized_actions=True -> Box(-1, 1)
+          mapped onto ctrlrange.
+  Obs     {'state': (nu,) float32 actuated joint positions (rad), one per
+           actuator; a Robotiq's slot is its right_driver_joint (the first joint
+           of the tendon it drives), 0 = open .. 0.8 = closed,
            'image': (S, S, 3) uint8 RGB from camera 'top1'}
           state_mode="proprio+task" appends 4 floats to 'state':
           [balance reading in grams, left, right, top door opening in meters].
@@ -20,7 +26,8 @@ Task (from the video): put vial_a (an open 20 mL vial, 20 g) onto the balance pa
   PAN_TOL of the pan center in xy, resting: |vial z - pan top| < 5 mm) and
   vial_upright (axis . +z > 0.95) and doors_closed (all < 5 mm) and the reading
   is within READING_TOL_G of the vial's 20 g. Terminates on success.
-Reward: 1.0 on success, else 0.1 * shaping in [0, 1] (hand-to-vial reach, vial
+Reward: 1.0 on success, else 0.1 * shaping in [0, 1] (reach from the nearer
+  grasp point -- Robotiq pinch site or palm -- to the vial, vial
   height, vial-to-pan distance); only for logging -- the env is meant for eval
   and demonstration-driven training, like MaxLab's.
 World frame: urgantry_sim's (see chem_rl_sim/scene.py). 2 ms physics,
@@ -36,9 +43,10 @@ from gymnasium.spaces import Box, Dict
 import mujoco
 import mujoco.viewer
 
-from urgantry_sim.build_urgantry import DEFAULT_HAND, apply_initial_view
+from urgantry_sim.build_urgantry import apply_initial_view
 
 from .balance import PAN_R, pan_reading_g
+from .robot import DEFAULT_EFFECTOR, tool_point
 from .scene import LAYOUTS, TARGET_VIAL, build_model, set_initial_pose
 
 DOORS = ("left", "right", "top")
@@ -53,6 +61,14 @@ PROMPT = ("weigh the vial: open the draft shield, put the open vial on the balan
           "and close the draft shield")
 
 
+def _driven_joint(m: mujoco.MjModel, act: int) -> int:
+    """Joint an actuator moves: its target joint, or for a tendon actuator (the
+    Robotiq) the tendon's first joint."""
+    if m.actuator_trntype[act] == mujoco.mjtTrn.mjTRN_TENDON:
+        return int(m.wrap_objid[m.tendon_adr[m.actuator_trnid[act, 0]]])
+    return int(m.actuator_trnid[act, 0])
+
+
 class VialWeighingEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array"]}
 
@@ -64,7 +80,7 @@ class VialWeighingEnv(gym.Env):
         normalized_actions: bool = False,
         prompt: str = PROMPT,
         show_viewer: bool = False,
-        hand: str = DEFAULT_HAND,
+        hand: str = DEFAULT_EFFECTOR,
         layout: str = "task",
         clutter: bool = True,
         randomize: bool = True,
@@ -90,12 +106,10 @@ class VialWeighingEnv(gym.Env):
         m = self.model
         self._ctrl_low = m.actuator_ctrlrange[:, 0].copy()
         self._ctrl_high = m.actuator_ctrlrange[:, 1].copy()
-        self._act_qadr = m.jnt_qposadr[m.actuator_trnid[:, 0]]
+        self._act_qadr = m.jnt_qposadr[[_driven_joint(m, i) for i in range(m.nu)]]
         self._door_qadr = np.array([m.joint(f"balance_door_{d}").qposadr[0] for d in DOORS])
         self._vial_qadr = m.joint(f"{TARGET_VIAL}_joint").qposadr[0]
         self._prop_qadr = {p: m.joint(f"{p}_joint").qposadr[0] for p in LAYOUTS[layout]}
-        self._palm_ids = [m.body(n).id for n in (f"{s}_hand_palm_link" if hand == "wuji"
-                                                   else f"{s}_hand_hand_C_MC" for s in ("left", "right"))]
 
         nu = m.nu
         if normalized_actions:
@@ -172,7 +186,8 @@ class VialWeighingEnv(gym.Env):
     def _shaping(self) -> float:
         v = self.vial_pos()
         pan = self.data.site("balance_pan_site").xpos
-        reach = min(np.linalg.norm(self.data.xpos[i] - v) for i in self._palm_ids)
+        reach = min(np.linalg.norm(tool_point(self.model, self.data, s) - v)
+                    for s in ("left", "right"))
         lift = np.clip((v[2] - LAYOUTS[self.layout][TARGET_VIAL][1][2]) / 0.15, 0, 1)
         to_pan = np.linalg.norm(v - pan)
         return float((1 - np.tanh(4 * reach)) / 3 + lift / 3 + (1 - np.tanh(4 * to_pan)) / 3)

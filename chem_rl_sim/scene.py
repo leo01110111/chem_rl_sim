@@ -1,5 +1,7 @@
 """CONTRACT
-Input: build_spec(layout="video"|"task", hand="wuji"|"sharpa", clutter=True).
+Input: build_spec(layout="video"|"task", hand="robotiq"|"wuji"|"sharpa", clutter=True).
+  `hand` picks the end effector (chem_rl_sim/robot.py); default "robotiq" = Robotiq
+  2F-85 bolted to the flange, "wuji"/"sharpa" = 5-finger hand on the adapter cylinder.
 Output: an mjSpec = urgantry_sim's gantry scene (bare: no block/tray; imported from
   the third_party/urgantry_sim submodule so robot updates come from upstream) plus
   the weighing bench from the video at 2:50-4:10 (chem_lab_vial_weighing_trial1):
@@ -28,12 +30,11 @@ from __future__ import annotations
 import numpy as np
 import mujoco
 
-from urgantry_sim.build_urgantry import (
-    BOARD_TOP, DEFAULT_HAND, build_spec as gantry_spec, set_initial_pose as gantry_pose,
-)
+from urgantry_sim.build_urgantry import BOARD_TOP, set_initial_pose as gantry_pose
 
 from .assets import add_asset
 from .balance import CH_D, CH_Y0, PAN_Z, add_balance
+from .robot import DEFAULT_EFFECTOR, gantry_spec, set_effectors_open
 
 BALANCE_POS = (0.10, 0.04)          # bench xy of the balance's bottom-center
 PAN_XY = (BALANCE_POS[0], BALANCE_POS[1] + CH_Y0 + CH_D / 2)
@@ -124,8 +125,8 @@ def _clutter(spec: mujoco.MjSpec) -> None:
                     rgba=TAPE_RGBA, contype=0, conaffinity=0)
 
 
-def build_spec(layout: str = "task", hand: str = DEFAULT_HAND, clutter: bool = True) -> mujoco.MjSpec:
-    spec = gantry_spec(spawn_props=False, hand=hand)
+def build_spec(layout: str = "task", hand: str = DEFAULT_EFFECTOR, clutter: bool = True) -> mujoco.MjSpec:
+    spec = gantry_spec(hand)
     spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
     # Small glass on a smooth pan: default 2-cone friction slips; elliptic +
     # noslip keeps a settled vial from creeping and the balance reading still.
@@ -139,12 +140,13 @@ def build_spec(layout: str = "task", hand: str = DEFAULT_HAND, clutter: bool = T
     return spec
 
 
-def build_model(layout: str = "task", hand: str = DEFAULT_HAND, clutter: bool = True) -> mujoco.MjModel:
+def build_model(layout: str = "task", hand: str = DEFAULT_EFFECTOR, clutter: bool = True) -> mujoco.MjModel:
     return build_spec(layout, hand, clutter).compile()
 
 
 def set_initial_pose(model: mujoco.MjModel, data: mujoco.MjData, layout: str = "task") -> None:
-    gantry_pose(model, data)
+    gantry_pose(model, data)          # arms home; opens hands (no-op for grippers)
+    set_effectors_open(model, data)
     for prop, (_, pos, quat) in LAYOUTS[layout].items():
         adr = model.joint(f"{prop}_joint").qposadr[0]
         data.qpos[adr:adr + 7] = [*pos, *quat]
@@ -152,7 +154,7 @@ def set_initial_pose(model: mujoco.MjModel, data: mujoco.MjData, layout: str = "
         data.qpos[model.joint(f"balance_door_{door}").qposadr[0]] = 0.0
 
 
-def build_scene(layout: str = "task", hand: str = DEFAULT_HAND, clutter: bool = True):
+def build_scene(layout: str = "task", hand: str = DEFAULT_EFFECTOR, clutter: bool = True):
     model = build_model(layout, hand, clutter)
     data = mujoco.MjData(model)
     set_initial_pose(model, data, layout)
