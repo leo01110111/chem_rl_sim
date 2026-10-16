@@ -10,6 +10,18 @@ environment for the weighing task is included.
 
 ![The environment: full gantry (left) and the bench close up (right)](docs/env.png)
 
+The default end effector is a Robotiq 2F-85 bolted straight onto each UR7e
+flange. `hand="wuji"` or `hand="sharpa"` puts the 5-finger hands back, on their
+adapter cylinder.
+
+![Left wrist at home: Robotiq 2F-85 on the flange (left) and the Wuji hand on its adapter cylinder (right)](docs/gripper_mount.png)
+
+A scripted top-down pick under physics (IK waypoints, position servos, gripper
+contacts), from `tools/gripper_pick.py`. The left gripper lifts `vial_a` 119 mm
+(120 mm commanded) and it ends tilted 0.2°.
+
+![Left Robotiq gripper picking vial_a top-down and lifting it 12 cm](docs/gripper_pick.gif)
+
 
 ## Setup
 
@@ -81,6 +93,7 @@ the pan or balance, and the wrist hits the vials and the boxes beside the balanc
 | `tools/preview_asset.py N` | render the visual mesh beside its collision hulls, on a 1 cm checker |
 | `tools/render_overview.py` | render the README image of the whole env → `docs/env.png` |
 | `tools/ik_door_reach.py` | IK each arm through its side door to the pan, print errors and contacts → `docs/ik_door_reach.gif` |
+| `tools/gripper_pick.py` | scripted Robotiq pick of `vial_a` under physics, plus the wrist close-up → `docs/gripper_pick.gif`, `docs/gripper_mount.png` |
 | `tools/render_scene.py` | render video frame, sim from the phone's viewpoint, and sim from `top1` → `work/scene_*.png` |
 
 Tests: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest -q`. The variable stops the
