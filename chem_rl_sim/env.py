@@ -15,6 +15,9 @@ get_openpi_observation) can use it unchanged:
            actuator; a Robotiq's slot is its right_driver_joint (the first joint
            of the tendon it drives), 0 = open .. 0.8 = closed,
            'image': (S, S, 3) uint8 RGB from camera 'top1'}
+          With Robotiq grippers, render_cameras() also offers 'left_wrist' / 'right_wrist'
+          (cameras {side}_grip_wrist: MaxLab's ArduCam OV9782, fovy 92, rendered S x S --
+          the centre square of the real 1280x800 frame); they are not in obs.
           state_mode="proprio+task" appends 4 floats to 'state':
           [balance reading in grams, left, right, top door opening in meters].
   Info    success (0/1), balance_g (float, grams on the pan), balance_display
@@ -102,6 +105,8 @@ class VialWeighingEnv(gym.Env):
         self._step_count = 0
         self._renderer = mujoco.Renderer(self.model, height=image_size, width=image_size)
         self.cameras = {"top1": "top1"}
+        if hand == "robotiq":
+            self.cameras.update(left_wrist="left_grip_wrist", right_wrist="right_grip_wrist")
 
         m = self.model
         self._ctrl_low = m.actuator_ctrlrange[:, 0].copy()
@@ -178,7 +183,7 @@ class VialWeighingEnv(gym.Env):
         return {"state": self._state(), "image": self.render_cameras(["top1"])["top1"]}
 
     def get_openpi_observation(self, prompt: str | None = None) -> dict:
-        frames = self.render_cameras()
+        frames = self.render_cameras(["top1"])
         return {"observation/image": frames["top1"], "observation/state": self._state(),
                 "prompt": prompt if prompt is not None else self.prompt}
 

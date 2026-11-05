@@ -1,0 +1,29 @@
+<mujoco model="arducam_ov9782">
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+
+  <asset>
+    <mesh name="arducam_ov9782" file="arducam_ov9782.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+
+  <worldbody>
+    <!-- Standalone ArduCam OV9782 module, meant to be attached via
+         MjSpec.attach_body() onto a "cam_attach" site (see build_urtable.py /
+         robotiq-2f85.xml). Four hole sites mark the board's mounting bolt
+         holes (corners, ~28x28mm square, ~3.96mm dia), found by tracing the
+         STL's boundary loops -- these should land close to the matching
+         wrist_mount_cam_hole_* sites on the bracket once attached. -->
+    <body name="wrist_cam">
+      <geom name="wrist_cam" type="mesh" mesh="arducam_ov9782" contype="0"
+            conaffinity="0" mass="0" rgba="0.12 0.12 0.13 1"/>
+      <!-- quat: base 180deg flip (x-axis) so the lens looks outward from the
+           bracket, composed with a 90deg CCW roll about the optical axis to
+           match the sensor's mounted orientation. user[0] = target capture
+           fps (15), read by the render loop to throttle this camera. -->
+      <camera name="wrist" quat="0 0.70710678 0.70710678 0" fovy="92" resolution="1280 800" user="15"/>
+      <site name="arducam_hole_1" pos="-0.0140088 -0.013978 -0.000871" type="sphere" group="5" rgba="0.9 0.6 0.1 1" size="0.002"/>
+      <site name="arducam_hole_2" pos="0.0139785 0.01399 -0.000871" type="sphere" group="5" rgba="0.9 0.6 0.1 1" size="0.002"/>
+      <site name="arducam_hole_3" pos="0.0139763 -0.014 -0.000871" type="sphere" group="5" rgba="0.9 0.6 0.1 1" size="0.002"/>
+      <site name="arducam_hole_4" pos="-0.0140215 0.01399 -0.000871" type="sphere" group="5" rgba="0.9 0.6 0.1 1" size="0.002"/>
+    </body>
+  </worldbody>
+</mujoco>

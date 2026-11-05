@@ -63,3 +63,15 @@ def test_doors_slide():
     for door in ("left", "right", "top"):
         q = d.qpos[m.joint(f"balance_door_{door}").qposadr[0]]
         assert 0.19 < q <= 0.2001, (door, q)
+
+
+def test_robotiq_wrist_cameras_massless():
+    """MaxLab's ArduCam wrist cameras ride on each Robotiq without changing its mass."""
+    import mujoco
+    from chem_rl_sim.scene import build_model
+    m = build_model("weigh", "robotiq", False)
+    for side in ("left", "right"):
+        cam = m.camera(f"{side}_grip_wrist")
+        assert abs(m.cam_fovy[cam.id] - 92.0) < 1e-9
+    g = [m.geom(i) for i in range(m.ngeom) if m.geom(i).name.endswith("wrist_mount")]
+    assert len(g) == 2 and all(x.contype == 0 and x.conaffinity == 0 for x in g)

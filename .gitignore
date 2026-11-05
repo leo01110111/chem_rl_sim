@@ -7,3 +7,5 @@ __pycache__/
 MUJOCO_LOG.TXT
 work/
 assets/raw/*.glb
+data/
+teleop_worker.log

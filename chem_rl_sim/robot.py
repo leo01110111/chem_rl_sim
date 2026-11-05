@@ -38,6 +38,14 @@ import numpy as np
 from urgantry_sim import build_urgantry as gantry
 
 ROBOTIQ_PATH = str(Path(__file__).resolve().parent / "robotiq_2f85" / "2f85.xml")
+ARDUCAM_PATH = str(Path(__file__).resolve().parent / "robotiq_2f85" / "arducam_ov9782.xml")
+# Wrist camera bracket pose in the Robotiq `base` frame and the camera's attach site in
+# the bracket frame, copied from MaxLab urtable_sim/gripper/robotiq-2f85.xml @ 77ba4dc
+# (the bracket/camera STLs and arducam_ov9782.xml come from the same commit). Our
+# menagerie 2F-85 has the identical `base` frame (pos 0 0 0.0038, quat 1 0 0 -1 under
+# base_mount), so the poses carry over unchanged.
+WRIST_MOUNT_POS, WRIST_MOUNT_QUAT = [-0.027, 0, 0.0213], [0.707107, 0, 0, -0.707107]
+CAM_ATTACH_POS, CAM_ATTACH_QUAT = [0, -0.054, -0.04], [0.71441, -0.11985, -0.11379, -0.67993]
 EFFECTORS = ("robotiq", *gantry.HANDS)
 DEFAULT_EFFECTOR = "robotiq"
 GRIPPER_OPEN, GRIPPER_CLOSED = 0.0, 255.0
@@ -52,8 +60,24 @@ def _arm_with_robotiq(side: str, hand: str) -> mujoco.MjSpec:
     mount = arm.body("wrist_3_link").add_body(name="flange_adapter",
                                               pos=flange.pos, quat=flange.quat)
     gripper = gantry._load_part(ROBOTIQ_PATH)
+    _add_wrist_camera(gripper)
     mount.add_site(name="gripper_mount").attach_body(gripper.body("base_mount"), "grip_", "")
     return arm
+
+
+def _add_wrist_camera(gripper: mujoco.MjSpec) -> None:
+    """MaxLab's ArduCam OV9782 on its printed bracket over the Robotiq base, looking over
+    the fingers at the grasp. Massless and non-colliding, so dynamics are unchanged.
+    Camera ends up named '{side}_grip_wrist' (fovy 92, 1280x800 native)."""
+    gripper.add_mesh(name="wrist_cam_mount", file=str(Path(ROBOTIQ_PATH).parent / "assets" / "wrist_cam_mount.stl"),
+                     scale=[0.001] * 3)
+    bracket = gripper.body("base").add_body(name="wrist_mount", pos=WRIST_MOUNT_POS,
+                                            quat=WRIST_MOUNT_QUAT)
+    bracket.add_geom(name="wrist_mount", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="wrist_cam_mount",
+                     contype=0, conaffinity=0, mass=0, rgba=[0.45, 0.62, 0.78, 1])
+    cam = gantry._load_part(ARDUCAM_PATH)
+    bracket.add_site(name="cam_attach", pos=CAM_ATTACH_POS, quat=CAM_ATTACH_QUAT).attach_body(
+        cam.body("wrist_cam"), "", "")
 
 
 def gantry_spec(effector: str = DEFAULT_EFFECTOR) -> mujoco.MjSpec:

@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 assets = ["objaverse>=0.1.7", "opencv-python>=4.10", "scipy"]
+teleop = ["opencv-python>=4.10", "h5py>=3.11", "vosk>=0.3.45", "sounddevice>=0.5"]
 
 [tool.uv.sources]
 urgantry-sim = { path = "third_party/urgantry_sim", editable = true }

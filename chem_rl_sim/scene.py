@@ -1,5 +1,5 @@
 """CONTRACT
-Input: build_spec(layout="video"|"task", hand="robotiq"|"wuji"|"sharpa", clutter=True).
+Input: build_spec(layout="video"|"task"|"weigh", hand="robotiq"|"wuji"|"sharpa", clutter=True).
   `hand` picks the end effector (chem_rl_sim/robot.py); default "robotiq" = Robotiq
   2F-85 bolted to the flange, "wuji"/"sharpa" = 5-finger hand on the adapter cylinder.
 Output: an mjSpec = urgantry_sim's gantry scene (bare: no block/tray; imported from
@@ -85,6 +85,12 @@ LAYOUTS = {
         "cap_1": ("cap_24_400_white", (-0.31, 0.07, _BENCH), Q_UP),
         "cap_2": ("cap_24_400_white", (-0.33, 0.15, _BENCH), Q_UP),
         "dropper": ("pasteur_dropper", (-0.04, 0.17, _BENCH + DROPPER_TIP_R), Q_LIE_Y),
+    },
+    # Only what the weighing task touches: vial a at its task-layout spot. The teleop
+    # data collector's default (with clutter=False), so demonstrations carry no
+    # distractors the policy would have to learn to ignore.
+    "weigh": {
+        "vial_a": ("vial_20ml_open", (-0.12, 0.06, _BENCH), Q_UP),
     },
 }
 LAYOUT_NAMES = tuple(LAYOUTS)
