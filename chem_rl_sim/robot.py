@@ -67,14 +67,15 @@ def _arm_with_robotiq(side: str, hand: str) -> mujoco.MjSpec:
 
 def _add_wrist_camera(gripper: mujoco.MjSpec) -> None:
     """MaxLab's ArduCam OV9782 on its printed bracket over the Robotiq base, looking over
-    the fingers at the grasp. Massless and non-colliding, so dynamics are unchanged.
+    the fingers at the grasp. Massless, but bracket and camera collide (convex hulls), so
+    the arm can't push them through the balance or its doors.
     Camera ends up named '{side}_grip_wrist' (fovy 92, 1280x800 native)."""
     gripper.add_mesh(name="wrist_cam_mount", file=str(Path(ROBOTIQ_PATH).parent / "assets" / "wrist_cam_mount.stl"),
                      scale=[0.001] * 3)
     bracket = gripper.body("base").add_body(name="wrist_mount", pos=WRIST_MOUNT_POS,
                                             quat=WRIST_MOUNT_QUAT)
     bracket.add_geom(name="wrist_mount", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="wrist_cam_mount",
-                     contype=0, conaffinity=0, mass=0, rgba=[0.45, 0.62, 0.78, 1])
+                     contype=1, conaffinity=1, mass=0, rgba=[0.45, 0.62, 0.78, 1])
     cam = gantry._load_part(ARDUCAM_PATH)
     bracket.add_site(name="cam_attach", pos=CAM_ATTACH_POS, quat=CAM_ATTACH_QUAT).attach_body(
         cam.body("wrist_cam"), "", "")

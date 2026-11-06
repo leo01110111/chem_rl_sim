@@ -66,12 +66,14 @@ def test_doors_slide():
 
 
 def test_robotiq_wrist_cameras_massless():
-    """MaxLab's ArduCam wrist cameras ride on each Robotiq without changing its mass."""
+    """MaxLab's ArduCam wrist cameras ride on each Robotiq without changing its mass, and
+    their bracket and camera body collide with the scene."""
     import mujoco
     from chem_rl_sim.scene import build_model
     m = build_model("weigh", "robotiq", False)
     for side in ("left", "right"):
         cam = m.camera(f"{side}_grip_wrist")
         assert abs(m.cam_fovy[cam.id] - 92.0) < 1e-9
-    g = [m.geom(i) for i in range(m.ngeom) if m.geom(i).name.endswith("wrist_mount")]
-    assert len(g) == 2 and all(x.contype == 0 and x.conaffinity == 0 for x in g)
+    g = [m.geom(i) for i in range(m.ngeom) if m.geom(i).name.endswith(("wrist_mount", "wrist_cam"))]
+    assert len(g) == 4 and all(x.contype == 1 and x.conaffinity == 1 for x in g)
+    assert all(m.body_mass[x.bodyid[0]] == 0 for x in g)

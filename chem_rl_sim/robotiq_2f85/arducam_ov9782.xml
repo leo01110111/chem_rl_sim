@@ -13,8 +13,8 @@
          STL's boundary loops -- these should land close to the matching
          wrist_mount_cam_hole_* sites on the bracket once attached. -->
     <body name="wrist_cam">
-      <geom name="wrist_cam" type="mesh" mesh="arducam_ov9782" contype="0"
-            conaffinity="0" mass="0" rgba="0.12 0.12 0.13 1"/>
+      <geom name="wrist_cam" type="mesh" mesh="arducam_ov9782" contype="1"
+            conaffinity="1" mass="0" rgba="0.12 0.12 0.13 1"/>
       <!-- quat: base 180deg flip (x-axis) so the lens looks outward from the
            bracket, composed with a 90deg CCW roll about the optical axis to
            match the sensor's mounted orientation. user[0] = target capture
